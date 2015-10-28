@@ -1,0 +1,49 @@
+body
+    font-family: Tahoma, Geneva, sans-serif
+    font-size: 1pc
+form
+    clear: both
+    margin: auto
+    position: relative
+    text-decoration: none
+    -webkit-border-radius: 2pt
+    -moz-border-radius: 2pt
+    border-radius: 2pt
+    padding: 1em
+    border: 1pt solid #999
+    border: inset 1pt solid #333
+    input, textarea, select, button
+        margin: 1pt
+        -webkit-box-sizing: border-box
+        -moz-box-sizing: border-box
+        box-sizing: border-box
+    select
+        width: 100%
+    input
+        display: block
+        border: 1pt solid #999
+    input[type=submit]
+        float: right
+        background: #09C
+        color: #FFF
+        -webkit-border-radius: 2pt
+        -moz-border-radius: 2pt
+        border-radius: 2pt
+        border: 1pt solid #999
+    input[type=submit]:hover
+        background: #FFF
+        color: #09C
+form::after
+    content: ""
+    display: block
+    visibility: hidden
+    clear: both
+pre
+    -webkit-border-radius: 2pt
+    -moz-border-radius: 2pt
+    border-radius: 2pt
+    border: 1pt solid #999
+    background: #DDD
+    margin: 1em
+    padding: 1em
+    white-space: pre-wrap

@@ -16,7 +16,7 @@ import Foundation
 getHomeR :: Handler Html
 getHomeR = do
     (formWidget, formEncType) <- generateFormPost uploadForm
-    filenames <- getList
+    storedFiles <- getList
     defaultLayout $ do
         setTitle "File Processor"
         $(widgetFileNoReload def "home")
@@ -28,7 +28,8 @@ postHomeR = do
         FormSuccess fi -> do
             app <- getYesod
             fileBytes <- runResourceT $ fileSource fi $$ sinkLbs
-            addFile app $ (fileName fi, fileBytes)
+            addFile app $
+                StoredFile (fileName fi) (fileContentType fi) fileBytes
         _ -> return ()
     redirect HomeR
 

@@ -3,6 +3,7 @@
 module Main where
 
 import Control.Concurrent.STM
+import Data.IntMap
 
 import Yesod
 
@@ -11,5 +12,6 @@ import Foundation
 
 main :: IO ()
 main = do
-    tfilenames <- atomically $ newTVar []
-    warp 5000 $ App tfilenames
+    tstore <- atomically $ newTVar empty
+    tident <- atomically $ newTVar 0
+    warp 5000 $ App tident tstore

@@ -9,34 +9,52 @@ module Foundation where
 
 import Control.Concurrent.STM
 import Data.ByteString.Lazy (ByteString)
+import Data.Default
+import Data.IntMap (IntMap)
+import qualified Data.IntMap as IntMap
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Text.Hamlet
 
 import Yesod
+import Yesod.Default.Util
 
-data App = App (TVar [(Text, ByteString)])
-instance Yesod App
+data StoredFile = StoredFile !Text !Text !ByteString
+type Store = IntMap StoredFile
+data App = App (TVar Int) (TVar Store)
+
+instance Yesod App where
+    defaultLayout widget = do
+        pc <- widgetToPageContent $ $(widgetFileNoReload def "default-layout")
+        withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
 
 instance RenderMessage App FormMessage where
     renderMessage _ _ = defaultFormMessage
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-getList :: Handler [Text]
+getNextId :: App -> STM Int
+getNextId (App tnextId _) = do
+    nextId <- readTVar tnextId
+    writeTVar tnextId $ nextId + 1
+    return nextId
+
+getList :: Handler [(Int, StoredFile)]
 getList = do
-    App tstate <- getYesod
-    state <- liftIO $ readTVarIO tstate
-    return $ map fst state
+    App _ tstore <- getYesod
+    store <- liftIO $ readTVarIO tstore
+    return $ IntMap.toList store
 
-addFile :: App -> (Text, ByteString) -> Handler ()
-addFile (App tstore) op =
+addFile :: App -> StoredFile -> Handler ()
+addFile app@(App _ tstore) file =
     liftIO . atomically $ do
-        modifyTVar tstore $ \ ops -> op : ops
+        ident <- getNextId app
+        modifyTVar tstore $ IntMap.insert ident file
 
-getById :: Text -> Handler ByteString
+getById :: Int -> Handler StoredFile
 getById ident = do
-    App tstore <- getYesod
-    operations <- liftIO $ readTVarIO tstore
-    case lookup ident operations of
+    App _ tstore <- getYesod
+    store <- liftIO $ readTVarIO tstore
+    case IntMap.lookup ident store of
         Nothing -> notFound
-        Just bytes -> return bytes
+        Just file -> return file

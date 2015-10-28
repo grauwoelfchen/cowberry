@@ -1,2 +1,3 @@
 /           HomeR    GET POST
-/file/#Text PreviewR GET
+/file/#Int PreviewR GET
+/file/#Int/download DownloadR GET
